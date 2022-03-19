@@ -1,0 +1,9 @@
+﻿@model Search
+
+<form method="get">
+        <label asp-for="search" class="text-alert-dark">Enter name to search a user</label>
+    <div class="input-group mb-3">
+      <input asp-for="search" class="form-control" placeholder="User"   >
+        <button asp-action="GetRepo" class="btn btn-outline-secondary" type="submit">Search</button>
+    </div>
+</form> 
