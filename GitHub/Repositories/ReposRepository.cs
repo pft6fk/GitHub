@@ -18,6 +18,7 @@ namespace GitHub.Repositories
             var obj = new ReposModel();
             obj.GitHubId = repos.Id;
             obj.Name = repos.Name;
+            obj.HtmlUrl = repos.HtmlUrl;
             obj.UpdatedAt = repos.UpdatedAt.LocalDateTime;
             //get owners detail ??????
             //obj.Owner = repos.Owner;

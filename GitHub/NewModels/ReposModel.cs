@@ -9,6 +9,7 @@ namespace GitHub.NewModels
         public long Id { get; set; }
         public long GitHubId { get; set; }
         public string Name { get; set; }
+        public string HtmlUrl { get; set; }
         public string FullName { get; set; }
         public string? Language { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }

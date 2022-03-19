@@ -42,19 +42,18 @@ namespace GitHub.Controllers
 
             //https://api.github.com/search/repositories?q=tetris
             //pulls repositories with the name of tetris
-            IList<Repository> repositories;
-            IEnumerable<ReposModel> repos;
-            if(IfRepoExists(search) != null)
+            IEnumerable<ReposModel> repos = null;
+            if (IfRepoExists(search) != null)
             {
                 repos = IfRepoExists(search);
-               
-                return View("",repos);
+
+                return View("GetRepoDb", repos);
             }
             else
             {
                 var request = new SearchRepositoriesRequest(search);
                 var result = await client.Search.SearchRepo(request);
-                
+
                 foreach (var item in result.Items)
                 {
                     _unitOfWork.ReposRepository.AddToDb(item);
@@ -62,17 +61,28 @@ namespace GitHub.Controllers
                 }
                 return View(result.Items);
             }
-            
+
         }
 
-        public IEnumerable<ReposModel>? IfRepoExists(string search)
+        public IList<ReposModel>? IfRepoExists(string search)
         {
             IEnumerable<ReposModel> RepoDb = _unitOfWork.ReposRepository.GetAll();
-            IEnumerable<ReposModel> FoundRepos = 
-                from repo in RepoDb
-                where repo.Name.Contains(search)
-                select repo;
-            return FoundRepos;
+            //IEnumerable<ReposModel> FoundRepos = 
+            //    from repo in RepoDb
+            //    where repo.Name.Contains(search)
+            //    select repo;
+
+            List<ReposModel> reposModels = new List<ReposModel>();
+            foreach (var item in RepoDb)
+            {
+                if (item.Name.Contains(search))
+                {
+                    reposModels.Add(item);
+                }
+            }
+            if(reposModels.Any())
+                return reposModels;
+            return null;
 
         }
 
