@@ -9,6 +9,5 @@
         public int StargazersCount { get; set; }
         public long GitHubOwnerId { get; set; }
         public string OwnerLogin { get; set; }
-        //public ContributorsModel Contributors { get; set; }
     }
 }

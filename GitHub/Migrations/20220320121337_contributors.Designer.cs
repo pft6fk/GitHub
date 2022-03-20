@@ -4,6 +4,7 @@ using GitHub.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GitHub.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220320121337_contributors")]
+    partial class contributors
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,17 +36,22 @@ namespace GitHub.Migrations
                     b.Property<int>("Contributions")
                         .HasColumnType("int");
 
+                    b.Property<int>("Contributors")
+                        .HasColumnType("int");
+
                     b.Property<string>("Login")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("NumberOfContributors")
-                        .HasColumnType("int");
-
                     b.Property<long>("RepoId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("ReposId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ReposId");
 
                     b.ToTable("Contributors");
                 });
@@ -136,6 +144,17 @@ namespace GitHub.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("GitHub.NewModels.ContributorsModel", b =>
+                {
+                    b.HasOne("GitHub.NewModels.ReposModel", "Repos")
+                        .WithMany()
+                        .HasForeignKey("ReposId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Repos");
                 });
 #pragma warning restore 612, 618
         }

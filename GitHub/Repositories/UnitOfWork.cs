@@ -13,11 +13,13 @@ namespace GitHub.Repositories
             DetailsRepository = new DetailsRepository(context);
             ReposRepository = new ReposRepository(context);
             UserRepository = new UserRepository(context);
+            ContributorsRepository = new ContributorsRepository(context);
         }
 
         public IDetailsRepository DetailsRepository { get; private set; }
         public IReposRepository ReposRepository { get; private set; }
         public IUserRepository UserRepository { get; private set; }
+        public IContributorsRepository ContributorsRepository { get; private set; }
 
         public void Save()
         {

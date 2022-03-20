@@ -27,19 +27,12 @@ namespace GitHub.Controllers
 
             _unitOfWork = unitOfWork;
         }
-
         public IActionResult Index()
         {
             return View();
         }
-
-
         public async Task<IActionResult> GetRepo(string search)
-        {
-            //Define own Repository class -> custom
-            // ID->integer, Lang->string, FullName->string
-            //DBconnect
-
+        {   
             //https://api.github.com/search/repositories?q=tetris
             //pulls repositories with the name of tetris
             IEnumerable<ReposModel> repos = null;
@@ -61,9 +54,7 @@ namespace GitHub.Controllers
                 }
                 return View(result.Items);
             }
-
         }
-
         public IList<ReposModel>? IfRepoExists(string search)
         {
             IEnumerable<ReposModel> RepoDb = _unitOfWork.ReposRepository.GetAll();
@@ -85,7 +76,6 @@ namespace GitHub.Controllers
             return null;
 
         }
-
         public async Task<IActionResult> SearchUser(string? search)
         {
             if(search == null)
@@ -98,25 +88,55 @@ namespace GitHub.Controllers
             
             return Json(result.Items);
         }
-
-
         public async Task<IActionResult> Details(long id)
         {
+            if (IfContributorsExists(id) != null)
+            {
+                var detailsDb = _unitOfWork.ReposRepository.GetAll();
+                var repo = detailsDb.Where(n => n.GitHubId == id).FirstOrDefault();
+                var contributors = IfContributorsExists(id);
+                var obj = new DetailsDb();
+                obj.Repository = repo;
+                obj.Contributors = contributors;
 
+                return View("DetailsDb", obj);
+            }
+            else
+            {
+                //repo api
+                //https://api.github.com/repos/twbs/bootstrap
+                var obj = new Details();
+                var contributors = await client.Repository.GetAllContributors(id);
+                obj.Contributors = contributors;
 
-            //repo api
-            //https://api.github.com/repos/twbs/bootstrap
-            var obj = new Details();
-            obj.Repository = await client.Repository.Get(id);
+                obj.Repository = await client.Repository.Get(id);
 
-            var contributors = await client.Repository.GetAllContributors(id);
+                foreach (var item in contributors)
+                {
+                    _unitOfWork.ContributorsRepository.AddToDb(item, id, contributors.Count);
+                    _unitOfWork.Save();
+                }
 
-            obj.Contributors = contributors;
-
-            return View(obj);
+                return View(obj);
+            }
         }
+        public IList<ContributorsModel>?  IfContributorsExists(long repoId)
+        {
+            var contributorsDb = _unitOfWork.ContributorsRepository.GetAll();
 
+            List<ContributorsModel> Contributors = new List<ContributorsModel>();
 
+            foreach (var item in contributorsDb)
+            {
+                if(item.RepoId == repoId)
+                    Contributors.Add(item);
+            }
+
+            if(Contributors.Any())
+                return Contributors;
+
+            return null;
+        }
         public async Task<IActionResult> UserDetails(string login)
         {
             if (IfUserExists(login) != null)
@@ -146,7 +166,6 @@ namespace GitHub.Controllers
                 return View(obj);
             }
         }
-
         public UserModelNew? IfUserExists(string login)
         {
             IEnumerable<ReposModel> RepoDb = _unitOfWork.ReposRepository.GetAll();
