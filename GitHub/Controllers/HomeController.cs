@@ -21,7 +21,7 @@ namespace GitHub.Controllers
 
             client = new GitHubClient(new ProductHeaderValue("test"));
 
-            tokenAuth = new Credentials("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");
+            tokenAuth = new Credentials("%your_credentialas%"); //here you shoyld put your credentials in order to prevent limits of queries
             client.Credentials = tokenAuth;
             _context = context;
 
