@@ -16,7 +16,6 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
 //when object of ICategoryRepository is called, it will call the implementation of CategoryRepository (Later this was replaced by UnitOfWork)
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
