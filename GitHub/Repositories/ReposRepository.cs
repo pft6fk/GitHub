@@ -21,7 +21,9 @@ namespace GitHub.Repositories
             obj.HtmlUrl = repos.HtmlUrl;
             obj.UpdatedAt = repos.UpdatedAt.LocalDateTime;
             //get owners detail ??????
-            //obj.Owner = repos.Owner;
+            obj.GitHubOwnerId = repos.Owner.Id;
+            obj.GitHubOwnerLogin = repos.Owner.Login;
+
             obj.StargazersCount = repos.StargazersCount;
             obj.Language = repos.Language;
             obj.FullName = repos.FullName;

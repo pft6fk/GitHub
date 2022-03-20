@@ -100,14 +100,17 @@ namespace GitHub.Controllers
         }
 
 
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(long id)
         {
+
+
             //repo api
             //https://api.github.com/repos/twbs/bootstrap
             var obj = new Details();
             obj.Repository = await client.Repository.Get(id);
 
             var contributors = await client.Repository.GetAllContributors(id);
+
             obj.Contributors = contributors;
 
             return View(obj);
@@ -116,25 +119,64 @@ namespace GitHub.Controllers
 
         public async Task<IActionResult> UserDetails(string login)
         {
-            var obj = new UserModel();
+            if (IfUserExists(login) != null)
+            {
+                var obj = new UserDetailsModel();
+                obj.User = IfUserExists(login);
+                obj.Repos = TakeUserRepos(login);
 
-            //user api
-            //https://api.github.com/users/defunkt 
-
-            obj.User = await client.User.Get(login);
-            obj.Repositories = await client.Repository.GetAllForUser(login);
-
-            _unitOfWork.UserRepository.AddToDb(obj.User);
-            foreach (var item in obj.Repositories)
-            {//All public Repos of user
-                _unitOfWork.ReposRepository.AddToDb(item);
-                _unitOfWork.Save();
+                return View("UserDetailsDb", obj);
             }
-            _unitOfWork.Save();
+            else
+            {
+                var obj = new UserModel();
+                //user api
+                //https://api.github.com/users/defunkt 
 
-            return View(obj);
+                obj.User = await client.User.Get(login);
+                obj.Repositories = await client.Repository.GetAllForUser(login);
+
+                _unitOfWork.UserRepository.AddToDb(obj.User);
+                foreach (var item in obj.Repositories)
+                {//All public Repos of user
+                    _unitOfWork.ReposRepository.AddToDb(item);
+                }
+                _unitOfWork.Save();
+
+                return View(obj);
+            }
         }
 
+        public UserModelNew? IfUserExists(string login)
+        {
+            IEnumerable<ReposModel> RepoDb = _unitOfWork.ReposRepository.GetAll();
+            IEnumerable<UserModelNew> UserDb = _unitOfWork.UserRepository.GetAll();
 
+            var User = (from user in UserDb 
+                       where user.Login == login
+                       select user).FirstOrDefault();
+            
+            if(User == null)
+                return null;
+            return User;
+        }
+        public IList<ReposModel>? TakeUserRepos(string OwnerLogin)
+        {
+            IEnumerable<ReposModel> RepoDb = _unitOfWork.ReposRepository.GetAll();
+            
+            List<ReposModel> reposModels = new List<ReposModel>();
+            foreach (var item in RepoDb)
+            {
+                if (item.GitHubOwnerLogin.Contains(OwnerLogin))
+                {
+                    reposModels.Add(item);
+                }
+            }
+            if (reposModels.Any())
+                return reposModels;
+            return null;
+
+        }
     }
+
 }

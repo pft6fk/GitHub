@@ -15,8 +15,7 @@ namespace GitHub.NewModels
         public DateTimeOffset UpdatedAt { get; set; }
         public string? License { get; set; }
         public int StargazersCount { get; set; }
-        //public int N{ get; set; } 
-        //public long OwnerId { get; set; }
-        //public UserModelNew Owner { get; set; }
+        public long GitHubOwnerId { get; set; }
+        public string GitHubOwnerLogin { get; set; }
     }
 }
